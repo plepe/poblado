@@ -16,10 +16,11 @@ set(CMAKE_*_LINKER_FLAGS " -v ${UV_LIB}")
 include(${CMAKE_CURRENT_SOURCE_DIR}/uv.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/rapidjson.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/rapidjson-writable.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/async-worker.cmake)
 
 ## Project
 
-# poblado 
+# poblado
 include_directories(${PROJECT_INCLUDE_DIR})
 include_directories(${PROJECT_TEST_DIR})
 file(GLOB poblado_headers ${PROJECT_INCLUDE_DIR}/*)
@@ -32,5 +33,6 @@ source_group(test FILES ${poblado_test_sources} ${poblado_test_headers})
 add_executable(test_dump
   ${poblado_headers}
   ${PROJECT_TEST_DIR}/test_dump.cc ${poblado_test_headers}
-  ${rapidjson_writable_headers} ${rapidjson_headers} ${uv_headers} ${uv_sources}
+  ${async_worker_headers} ${rapidjson_writable_headers} ${rapidjson_headers}
+  ${uv_headers} ${uv_sources}
 )

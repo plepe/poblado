@@ -1,6 +1,7 @@
 ROOT        = $(shell pwd)
 DEPS        = $(ROOT)/deps
 
+-include async-worker.mk
 -include rapidjson-writable.mk
 -include rapidjson.mk
 -include uv.mk
@@ -26,7 +27,8 @@ test_dump: $(TEST_DUMP)
 
 .SUFFIXES: .cc .o
 .cc.o:
-	@(([ -d $(RAPIDJSON_WRITABLE_DIR) ] || $(MAKE) $(RAPIDJSON_WRITABLE_DIR)) && \
+	@(([ -d $(ASYNC_WORKER_DIR) ] || $(MAKE) $(ASYNC_WORKER_DIR)) && \
+	  ([ -d $(RAPIDJSON_WRITABLE_DIR) ] || $(MAKE) $(RAPIDJSON_WRITABLE_DIR)) && \
 	  ([ -d $(RAPIDJSON_DIR) ] || $(MAKE) $(RAPIDJSON_DIR))) && \
 	$(CXX) $< $(CCFLAGS) $(INCS) -c -o $@
 
