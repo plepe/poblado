@@ -58,7 +58,7 @@ class ParseResult {
     // worry about aggregating error info later
     // https://github.com/nodesource/rapidjson-writable/blob/master/test/util.h#L55
     const bool hasError;
-    const T* result;
+    T* result;
 
   private:
     ParseResult(bool hasError, T* result)
@@ -74,9 +74,9 @@ class RapidjsonWritableWithResult : public RapidjsonWritable {
     RapidjsonWritableWithResult()
       : RapidjsonWritable(), parseResult_(nullptr) {}
 
-    ParseResult<T>* result() const { return parseResult_; }
+    ParseResult<T>* const result() { return parseResult_; }
 
-  private:
+  protected:
     ParseResult<T>* parseResult_;
 };
 
@@ -142,15 +142,21 @@ class PobladoWorker : public AsyncWorker<ParseResult<T>, parser_work_t> {
 //
 
 #define SLEEP_TIME 40
-#define CHUNK_SIZE 64
+#define CHUNK_SIZE 640000
 
 
 class CollectedKeys {
+  public:
+    void addKey(char* key) {
+      keys.push_back(key);
+    }
 
+    std::vector<char*> keys;
 };
 
 
 
+using rapidjson_writable::JsonType;
 class Writable : public RapidjsonWritableWithResult<CollectedKeys> {
   void onparserFailure(rapidjson::Reader& reader) {
     poblado_log("parser failure");
@@ -158,11 +164,20 @@ class Writable : public RapidjsonWritableWithResult<CollectedKeys> {
 
   void onparsedToken(SaxHandler& handler) {
     poblado_log("parsed a token");
+    if (handler.type == JsonType::Key) {
+      ParseResult<CollectedKeys>* parseResult = this->result();
+      CollectedKeys* collecteds = parseResult->result;
+      collecteds->addKey(scopy(handler.stringVal.c_str()));
+    }
   }
 
   void onparseComplete() {
     poblado_log("parser complete");
+    for (auto& key : parseResult_->result->keys) {
+      poblado_log(key);
+    }
   }
+
 };
 
 class IterateLoopData {
